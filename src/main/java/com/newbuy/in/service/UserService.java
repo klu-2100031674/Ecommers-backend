@@ -8,12 +8,17 @@ import com.newbuy.in.model.UserStaging;
 import com.newbuy.in.model.Users;
 import com.newbuy.in.repository.UserRepo;
 import com.newbuy.in.repository.UserStagingRepo;
+import com.newbuy.in.utils.EmailTemplateUtil;
 import com.newbuy.in.utils.Utils;
+
 @Service
 public class UserService {
 
 	@Autowired
 	private UserRepo userRepo;
+
+	@Autowired
+	private EmailService emailService;
 
 	@Autowired
 	private UserStagingRepo userStagingRepo;
@@ -31,7 +36,8 @@ public class UserService {
 		}
 
 		// Generate JWT token
-		String token = utils.generateToken(user.getEmail());
+		System.out.println("check 1"+(user.getAdmin() == "true" ? true : false));
+		String token = utils.generateToken(user.getEmail(), (user.getAdmin() == "true" ? true : false));
 
 		// Prepare response object
 		LoginResponse loginResponse = new LoginResponse(token, user.getEmail(), user.getName());
@@ -63,8 +69,12 @@ public class UserService {
 			userStaging.setPassword(password);
 		}
 		userStagingRepo.save(userStaging);
+		// Send email
+		String subject = "Your OTP Code";
+		String body = EmailTemplateUtil.otpTemplate(name, otp);
+		emailService.sendHtmlEmail(email, subject, body);
 
-		return new ApiResponse<>(true, userStaging, "OTP generated successfully");
+		return new ApiResponse<>(true, userStaging, "OTP generated and sent successfully");
 	}
 
 	// Verify OTP

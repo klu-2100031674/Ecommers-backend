@@ -19,7 +19,7 @@ import com.newbuy.in.service.UserService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/public/users")
 public class Controller {
 
     private final UserService userService;
