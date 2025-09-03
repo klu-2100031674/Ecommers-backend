@@ -1,0 +1,631 @@
+{
+	"info": {
+		"_postman_id": "e8b9c4a1-2e5f-4d8c-9a7b-1c3d5e7f9g0h",
+		"name": "NewBuy E-Commerce API",
+		"description": "Complete API collection for NewBuy E-commerce Backend with authentication, user management, products, and cart functionality",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🏠 Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/public/users/page",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"public",
+						"users",
+						"page"
+					]
+				},
+				"description": "Basic health check endpoint to verify server is running"
+			}
+		},
+		{
+			"name": "👤 User Registration",
+			"item": [
+				{
+					"name": "1. Check Email Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/users/check-email?email={{test_email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"check-email"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{test_email}}"
+								}
+							]
+						},
+						"description": "Check if email is already registered"
+					}
+				},
+				{
+					"name": "2. Generate OTP for Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.sts && response.data && response.data.otp) {",
+									"        pm.environment.set('generated_otp', response.data.otp);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"mobileNumber\": \"{{test_mobile}}\",\n  \"password\": \"{{test_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/users/generate-otp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"generate-otp"
+							]
+						},
+						"description": "Generate OTP for user registration"
+					}
+				},
+				{
+					"name": "3. Verify OTP & Complete Registration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/users/verify-otp?email={{test_email}}&otp={{generated_otp}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"verify-otp"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{test_email}}"
+								},
+								{
+									"key": "otp",
+									"value": "{{generated_otp}}"
+								}
+							]
+						},
+						"description": "Verify OTP and complete user registration"
+					}
+				}
+			],
+			"description": "User registration flow with OTP verification"
+		},
+		{
+			"name": "🔑 Authentication",
+			"item": [
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.sts && response.data && response.data.token) {",
+									"        pm.environment.set('jwt_token', response.data.token);",
+									"        pm.environment.set('user_email', response.data.email);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"login"
+							]
+						},
+						"description": "Login user and get JWT token"
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.sts && response.data && response.data.token) {",
+									"        pm.environment.set('admin_jwt_token', response.data.token);",
+									"        pm.environment.set('admin_email', response.data.email);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"login"
+							]
+						},
+						"description": "Login admin user and get JWT token"
+					}
+				}
+			],
+			"description": "Authentication endpoints for users and admins"
+		},
+		{
+			"name": "🔄 Password Reset",
+			"item": [
+				{
+					"name": "1. Request Password Reset OTP",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/users/forget-password?email={{test_email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"forget-password"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{test_email}}"
+								}
+							]
+						},
+						"description": "Request OTP for password reset"
+					}
+				},
+				{
+					"name": "2. Verify Password Reset OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{test_email}}\",\n  \"otp\": \"{{reset_otp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/users/forget-password-verify-otp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"forget-password-verify-otp"
+							]
+						},
+						"description": "Verify OTP for password reset"
+					}
+				},
+				{
+					"name": "3. Update Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{test_email}}\",\n  \"newPassword\": \"{{new_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/users/forget-password-update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"users",
+								"forget-password-update"
+							]
+						},
+						"description": "Update password after OTP verification"
+					}
+				}
+			],
+			"description": "Password reset flow with OTP verification"
+		},
+		{
+			"name": "👤 User Profile (Protected)",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/get-profile-details/{{user_email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"get-profile-details",
+								"{{user_email}}"
+							]
+						},
+						"description": "Get user profile details"
+					}
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Name\",\n  \"number\": \"0987654321\",\n  \"address_Line_1\": \"123 Updated Street\",\n  \"address_Line_2\": \"Apt 5B\",\n  \"postcode\": \"54321\",\n  \"state\": \"California\",\n  \"city\": \"San Francisco\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_email}}/update-profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_email}}",
+								"update-profile"
+							]
+						},
+						"description": "Update user profile information"
+					}
+				}
+			],
+			"description": "Protected user profile management endpoints"
+		},
+		{
+			"name": "🛍️ Products",
+			"item": [
+				{
+					"name": "Get All Products (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/products/get-all?page=0&size=10&sortBy=name&sortDir=asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"products",
+								"get-all"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "name"
+								},
+								{
+									"key": "sortDir",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Get all products with pagination and sorting"
+					}
+				}
+			],
+			"description": "Product catalog endpoints"
+		},
+		{
+			"name": "👑 Admin Products (Protected)",
+			"item": [
+				{
+					"name": "Add New Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.sts && response.data && response.data.id) {",
+									"        pm.environment.set('product_id', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Premium Water Bottle\",\n  \"type\": \"750ml\",\n  \"color\": \"Silver\",\n  \"price\": 35.99,\n  \"stockQuantity\": 50,\n  \"description\": \"Premium stainless steel water bottle with temperature retention technology. Perfect for keeping your drinks hot or cold for hours.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/insert",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"insert"
+							]
+						},
+						"description": "Add new product (Admin only)"
+					}
+				}
+			],
+			"description": "Admin-only product management endpoints"
+		},
+		{
+			"name": "🛒 Shopping Cart (Protected)",
+			"item": [
+				{
+					"name": "Add Product to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cart/add?userId={{user_id}}&productId={{product_id}}&quantity=2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user_id}}"
+								},
+								{
+									"key": "productId",
+									"value": "{{product_id}}"
+								},
+								{
+									"key": "quantity",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Add product to user's shopping cart"
+					}
+				},
+				{
+					"name": "Get User's Cart",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cart/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								"user",
+								"{{user_id}}"
+							]
+						},
+						"description": "Get all items in user's cart"
+					}
+				},
+				{
+					"name": "Remove Item from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/cart/{{cart_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"cart",
+								"{{cart_id}}"
+							]
+						},
+						"description": "Remove specific item from cart"
+					}
+				}
+			],
+			"description": "Shopping cart management endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "test_email",
+			"value": "test@example.com",
+			"type": "string"
+		},
+		{
+			"key": "test_name",
+			"value": "Test User",
+			"type": "string"
+		},
+		{
+			"key": "test_mobile",
+			"value": "1234567890",
+			"type": "string"
+		},
+		{
+			"key": "test_password",
+			"value": "testPassword123",
+			"type": "string"
+		},
+		{
+			"key": "admin_email",
+			"value": "admin@example.com",
+			"type": "string"
+		},
+		{
+			"key": "admin_password",
+			"value": "adminPassword123",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
