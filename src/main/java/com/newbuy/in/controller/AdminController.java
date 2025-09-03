@@ -22,8 +22,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/public/products")
-public class ProductController {
+@RequestMapping("/admin")
+public class AdminController {
 
 	@Autowired
 	private ProductService productService;
@@ -34,15 +34,4 @@ public class ProductController {
 		ApiResponse<Products> response = productService.saveProduct(product);
 		return ResponseEntity.ok(response);
 	}
-    @GetMapping("/get-all")
-    public ResponseEntity<ApiResponse<Page<Products>>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-
-        ApiResponse<Page<Products>> response = productService.getAllProducts(page, size, sortBy, sortDir);
-        return ResponseEntity.ok(response);
-    }
-
 }

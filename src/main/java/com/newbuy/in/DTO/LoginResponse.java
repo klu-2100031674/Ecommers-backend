@@ -4,13 +4,15 @@ public class LoginResponse {
     private String token;
     private String email;
     private String name;
+    private String admin;
 
     public LoginResponse() {}
 
-    public LoginResponse(String token, String email, String name) {
+    public LoginResponse(String token, String email, String name,String admin) {
         this.token = token;
         this.email = email;
         this.name = name;
+        this.admin=admin;
     }
 
     // Getters & Setters
@@ -22,4 +24,6 @@ public class LoginResponse {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getAdmin() { return admin; }
+    public void setAdmin(String admin) { this.name = admin; }
 }

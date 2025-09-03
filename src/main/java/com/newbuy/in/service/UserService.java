@@ -1,5 +1,7 @@
 package com.newbuy.in.service;
 
+import java.lang.reflect.Field;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class UserService {
 
 	@Autowired
 	private Utils utils;
-	
+
 	@Autowired
 	private ForgetPasswordRepo forgetPasswordRepo;
 
@@ -47,7 +49,7 @@ public class UserService {
 		String token = utils.generateToken(user.getEmail(), (user.getAdmin() == "true" ? true : false));
 
 		// Prepare response object
-		LoginResponse loginResponse = new LoginResponse(token, user.getEmail(), user.getName());
+		LoginResponse loginResponse = new LoginResponse(token, user.getEmail(), user.getName(), user.getAdmin());
 
 		return new ApiResponse<>(true, loginResponse, "Login successful");
 	}
@@ -113,51 +115,84 @@ public class UserService {
 	}
 
 	// Forget password
-	  @Transactional
-	    public ApiResponse<Void> forgetPasswordGenerate(String email) {
-	        Users user = userRepo.findByEmail(email);
-	        if (user == null) {
-	            return new ApiResponse<>(false, null, "User is Not registered");
-	        }
+	@Transactional
+	public ApiResponse<Void> forgetPasswordGenerate(String email) {
+		Users user = userRepo.findByEmail(email);
+		if (user == null) {
+			return new ApiResponse<>(false, null, "User is Not registered");
+		}
 
-	        String otp = Utils.generateOTP(6);
+		String otp = Utils.generateOTP(6);
 
-	        ForgetPassword staging_data = forgetPasswordRepo.findByEmail(email);
-	        if (staging_data != null) {
-	            staging_data.setOtp(otp);
-	        } else {
-	            staging_data = new ForgetPassword(email, otp);
-	        }
+		ForgetPassword staging_data = forgetPasswordRepo.findByEmail(email);
+		if (staging_data != null) {
+			staging_data.setOtp(otp);
+		} else {
+			staging_data = new ForgetPassword(email, otp);
+		}
 
-	        forgetPasswordRepo.save(staging_data);
+		forgetPasswordRepo.save(staging_data);
 
-	        // If this throws an exception, transaction rolls back automatically
-	        String subject = "Your OTP Code";
-	        String body = EmailTemplateUtil.otpTemplate(user.getName(), otp);
-	        emailService.sendHtmlEmail(email, subject, body);
+		// If this throws an exception, transaction rolls back automatically
+		String subject = "Your OTP Code";
+		String body = EmailTemplateUtil.otpTemplate(user.getName(), otp);
+		emailService.sendHtmlEmail(email, subject, body);
 
-	        return new ApiResponse<>(true, null, "Otp sent successfully");
-	    }
-	  
-	  public ApiResponse<Void> verifyForgetPasswordOtp(String email, String  otp)
-	  {
-		  ForgetPassword staging_data = forgetPasswordRepo.findByEmail(email);
-		  if(staging_data.getOtp().equals(otp))
-		  {
-			  return new ApiResponse<>(true, null, "Otp Verified");
-		  }
+		return new ApiResponse<>(true, null, "Otp sent successfully");
+	}
+
+	public ApiResponse<Void> verifyForgetPasswordOtp(String email, String otp) {
+		ForgetPassword staging_data = forgetPasswordRepo.findByEmail(email);
+		if (staging_data.getOtp().equals(otp)) {
+			return new ApiResponse<>(true, null, "Otp Verified");
+		}
 		return new ApiResponse<>(false, null, "Invalid OTP");
-	  }
-	  @Transactional
-	  public ApiResponse<Void> updateUserPassword(String email , String password)
-	  {
-		  System.out.println("came");
-		  forgetPasswordRepo.deleteByEmail(email);
-		  Users userData = userRepo.findByEmail(email);
-		  if(userData.getPassword().equals(password)) return new ApiResponse<>(false,null,"present password and previous passord is same choose different password");
-		  userData.setPassword(password);
-		  userRepo.save(userData);
-		  return new ApiResponse<>(true,null,"password updated successfully");
-		  
-	  }
+	}
+
+	@Transactional
+	public ApiResponse<Void> updateUserPassword(String email, String password) {
+		System.out.println("came");
+		forgetPasswordRepo.deleteByEmail(email);
+		Users userData = userRepo.findByEmail(email);
+		if (userData.getPassword().equals(password))
+			return new ApiResponse<>(false, null,
+					"present password and previous passord is same choose different password");
+		userData.setPassword(password);
+		userRepo.save(userData);
+		return new ApiResponse<>(true, null, "password updated successfully");
+
+	}
+
+	@Transactional
+	public ApiResponse<Users> updateUserProfile(String email, Users updateData) {
+		Users user = userRepo.findByEmail(email);
+		// Update only if new value is present (null = skip)
+		if (updateData.getName() != null)
+			user.setName(updateData.getName());
+		if (updateData.getNumber() != null)
+			user.setNumber(updateData.getNumber());
+		if (updateData.getAddress_Line_1() != null)
+			user.setAddress_Line_1(updateData.getAddress_Line_1());
+		if (updateData.getAddress_Line_2() != null)
+			user.setAddress_Line_2(updateData.getAddress_Line_2());
+		if (updateData.getPostcode() != null)
+			user.setPostcode(updateData.getPostcode());
+		if (updateData.getState() != null)
+			user.setState(updateData.getState());
+		if (updateData.getCity() != null)
+			user.setCity(updateData.getCity());
+		if (updateData.getCountry() != null)
+			user.setCountry(updateData.getCountry());
+		// email, password, admin, active are intentionally skipped
+
+		Users updatedUser = userRepo.save(user);
+		return new ApiResponse<>(true, updatedUser, "Profile updated successfully");
+	}
+
+	public ApiResponse<Users> getUserProfile(String email) {
+		Users user = userRepo.findByEmail(email);
+		if (user == null)
+			return new ApiResponse<>(false, null, "Unable to process request");
+		return new ApiResponse<>(true, user, "user profile fetched successfully");
+	}
 }

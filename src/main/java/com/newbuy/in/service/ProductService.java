@@ -1,6 +1,10 @@
 package com.newbuy.in.service;
 
 import com.newbuy.in.DTO.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import com.newbuy.in.model.ProductImage;
 import com.newbuy.in.model.Products;
 import com.newbuy.in.repository.ProductRepo;
@@ -37,6 +41,16 @@ public class ProductService {
 		return new ApiResponse<>(true, savedProduct, "Product saved successfully");
 
 	}
+    public ApiResponse<Page<Products>> getAllProducts(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) 
+                        ? Sort.by(sortBy).ascending() 
+                        : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Products> productsPage = productRepo.findAll(pageable);
+
+        return new ApiResponse<>(true, productsPage, "Products fetched successfully with pagination");
+    }
 
 	// Get product by ID
 	public Products getProductById(Long id) {
