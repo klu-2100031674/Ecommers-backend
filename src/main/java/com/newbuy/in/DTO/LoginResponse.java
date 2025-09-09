@@ -1,29 +1,61 @@
 package com.newbuy.in.DTO;
 
 public class LoginResponse {
-    private String token;
-    private String email;
-    private String name;
-    private String admin;
+	private String token;
+	private String email;
+	private String name;
+	private String admin;
+	private int id;
 
-    public LoginResponse() {}
+	public LoginResponse() {
+	}
 
-    public LoginResponse(String token, String email, String name,String admin) {
-        this.token = token;
-        this.email = email;
-        this.name = name;
-        this.admin=admin;
-    }
+	public LoginResponse(String token, String email, String name, String admin, int id) {
+		this.token = token;
+		this.email = email;
+		this.name = name;
+		this.admin = admin;
+		this.id = id;
+	}
 
-    // Getters & Setters
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
+	// Getters & Setters
+	public String getToken() {
+		return token;
+	}
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+	public void setToken(String token) {
+		this.token = token;
+	}
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getAdmin() { return admin; }
-    public void setAdmin(String admin) { this.name = admin; }
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(String admin) {
+		this.name = admin;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

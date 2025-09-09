@@ -51,11 +51,19 @@ public class CartService {
 
 
     // Get all cart items for a user
-    public List<Cart> getCartByUser(int userId) {
+    public ApiResponse<List<Cart>> getCartByUser(int userId) {
         Users user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return cartRepo.findByUser(user);
+
+        List<Cart> cartItems = cartRepo.findByUser(user);
+
+        if (cartItems.isEmpty()) {
+            return new ApiResponse<>(true, cartItems, "Cart is empty for user ID: " + userId);
+        }
+
+        return new ApiResponse<>(true, cartItems, "Cart fetched successfully");
     }
+
 
     // Remove item from cart
     public void removeFromCart(Long cartId) {

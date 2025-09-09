@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -43,7 +44,8 @@ public class Products {
 
     // One product can have many images
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference	 
+    @JsonManagedReference	
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<ProductImage> images = new ArrayList<>();
 
     public Products() {}

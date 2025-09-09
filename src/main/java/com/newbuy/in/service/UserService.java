@@ -49,7 +49,7 @@ public class UserService {
 		String token = utils.generateToken(user.getEmail(), (user.getAdmin() == "true" ? true : false));
 
 		// Prepare response object
-		LoginResponse loginResponse = new LoginResponse(token, user.getEmail(), user.getName(), user.getAdmin());
+		LoginResponse loginResponse = new LoginResponse(token, user.getEmail(), user.getName(), user.getAdmin(),user.getId());
 
 		return new ApiResponse<>(true, loginResponse, "Login successful");
 	}

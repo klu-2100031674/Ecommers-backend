@@ -31,8 +31,9 @@ public class CartController {
 
     // Get cart items by user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Cart>> getCartByUser(@PathVariable int userId) {
-        return ResponseEntity.ok(cartService.getCartByUser(userId));
+    public ResponseEntity<ApiResponse<List<Cart>>> getUserCart(@PathVariable int userId) {
+        ApiResponse<List<Cart>> response = cartService.getCartByUser(userId);
+        return ResponseEntity.ok(response);
     }
 
     // Remove item from cart
